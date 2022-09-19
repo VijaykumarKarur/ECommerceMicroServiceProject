@@ -9,6 +9,12 @@ import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice
 public class InventoryExceptionHandler {
+    /***
+     * Method to handle InventoryNotFoundException
+     * @param exception InventoryNotFoundException
+     * @param request WebRequest
+     * @return ResponseEntity wrapping ExceptionResponseDTO containing HttpStatus and Message
+     */
     @ExceptionHandler(InventoryNotFoundException.class)
     public ResponseEntity<ExceptionResponseDTO> inventoryNotFoundExceptionHandler
             (InventoryNotFoundException exception, WebRequest request){
