@@ -90,7 +90,7 @@ public class InventoryServiceImpl implements InventoryService{
         }
         if(Objects.nonNull(requestDTO.getQuantity()) &&
                 !"".equalsIgnoreCase(requestDTO.getQuantity().toString())){
-            inventory.setSkuCode(requestDTO.getQuantity().toString());
+            inventory.setQuantity(requestDTO.getQuantity());
         }
         return mapToInventoryResponseDTO(inventoryRepository.save(inventory));
     }
@@ -110,6 +110,11 @@ public class InventoryServiceImpl implements InventoryService{
         inventoryRepository.delete(inventoryOptional.get());
     }
 
+    /***
+     * Helper method to map Inventory model to InventoryResponseDTO
+     * @param inventory
+     * @return InventoryResponseDTO
+     */
     public InventoryResponseDTO mapToInventoryResponseDTO(Inventory inventory){
         return InventoryResponseDTO
                 .builder()
@@ -119,6 +124,11 @@ public class InventoryServiceImpl implements InventoryService{
                 .build();
     }
 
+    /***
+     * Helper method to map InventoryRequestDTO to Inventory model
+     * @param requestDTO
+     * @return Inventory
+     */
     public Inventory mapToInventory(InventoryRequestDTO requestDTO){
         Inventory inventory = new Inventory();
         inventory.setSkuCode(requestDTO.getSkuCode());
