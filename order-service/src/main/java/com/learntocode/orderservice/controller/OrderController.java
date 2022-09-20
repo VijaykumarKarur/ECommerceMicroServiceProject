@@ -55,4 +55,14 @@ public class OrderController {
     public OrderResponseDTO getOrderByOrderNumber(@PathVariable("orderNumber") String orderNumber) throws OrderNotFoundException {
         return orderService.getOrderByOrderNumber(orderNumber);
     }
+
+    /***
+     * Endpoint to delete Order based on id
+     * @param id of the Order to be deleted
+     * @throws OrderNotFoundException is thrown if Order is not found
+     */
+    @DeleteMapping("/{id}")
+    public void deleteOrderById(@PathVariable("id") Long id) throws OrderNotFoundException {
+        orderService.deleteOrderById(id);
+    }
 }

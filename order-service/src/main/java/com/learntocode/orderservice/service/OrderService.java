@@ -11,4 +11,5 @@ public interface OrderService {
     List<OrderResponseDTO> getAllOrders();
     OrderResponseDTO getOrderById(Long id) throws OrderNotFoundException;
     OrderResponseDTO getOrderByOrderNumber(String orderNumber) throws OrderNotFoundException;
+    void deleteOrderById(Long id) throws OrderNotFoundException;
 }
