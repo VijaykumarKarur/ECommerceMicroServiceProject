@@ -20,7 +20,7 @@ public class OrderServiceImpl implements OrderService{
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private WebClient webClient;
+    private WebClient.Builder webClientBuilder;
 
     /***
      * Method to save Order along with OrderLineItems specified in the Order
@@ -47,7 +47,7 @@ public class OrderServiceImpl implements OrderService{
                             .toList();
             orderInventoryDTO.setOrderLineItemInventoryDTOList(orderLineItemInventoryDTOList);
             WebClient.UriSpec<WebClient.RequestBodySpec> uriSpec =
-                    (WebClient.UriSpec<WebClient.RequestBodySpec>) webClient.get();
+                    (WebClient.UriSpec<WebClient.RequestBodySpec>) webClientBuilder.build().get();
             WebClient.RequestBodySpec bodySpec = uriSpec.uri("http://localhost:8082/api/inventories/orderInStock/");
             WebClient.RequestHeadersSpec<?> headersSpec = bodySpec.bodyValue(orderInventoryDTO);
             responseDTO = headersSpec
