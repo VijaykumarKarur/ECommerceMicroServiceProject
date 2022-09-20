@@ -29,6 +29,19 @@ public class OrderServiceImpl implements OrderService{
     }
 
     /***
+     * Method to get all Orders in the system
+     * @return List of OrderResponseDTO containing all the Orders
+     */
+    @Override
+    public List<OrderResponseDTO> getAllOrders() {
+        List<Order> orderList = orderRepository.findAll();
+        return orderList
+                .stream()
+                .map(this::mapOrderToOrderResponseDTO)
+                .toList();
+    }
+
+    /***
      * Helper method to map OrderRequestDTO to Order
      * @param requestDTO OrderRequestDTO
      * @return Order
