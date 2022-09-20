@@ -10,4 +10,5 @@ public interface OrderService {
     OrderResponseDTO createOrder(OrderRequestDTO requestDTO);
     List<OrderResponseDTO> getAllOrders();
     OrderResponseDTO getOrderById(Long id) throws OrderNotFoundException;
+    OrderResponseDTO getOrderByOrderNumber(String orderNumber) throws OrderNotFoundException;
 }

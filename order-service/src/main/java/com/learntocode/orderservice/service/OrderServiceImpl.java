@@ -59,6 +59,21 @@ public class OrderServiceImpl implements OrderService{
     }
 
     /***
+     * Method to get Order based on orderNumber
+     * @param orderNumber of Order to be retrieved
+     * @return OrderResponseDTO containing the retrieved Order details
+     * @throws OrderNotFoundException is thrown if Order is not found
+     */
+    @Override
+    public OrderResponseDTO getOrderByOrderNumber(String orderNumber) throws OrderNotFoundException {
+        Optional<Order> orderOptional = orderRepository.findOrderByOrderNumberIgnoreCase(orderNumber);
+        if(orderOptional.isEmpty()){
+            throw new OrderNotFoundException("Order "+ orderNumber + " Not Found");
+        }
+        return mapOrderToOrderResponseDTO(orderOptional.get());
+    }
+
+    /***
      * Helper method to map OrderRequestDTO to Order
      * @param requestDTO OrderRequestDTO
      * @return Order
