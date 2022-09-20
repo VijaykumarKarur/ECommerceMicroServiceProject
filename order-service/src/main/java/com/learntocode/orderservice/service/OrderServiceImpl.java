@@ -88,6 +88,20 @@ public class OrderServiceImpl implements OrderService{
     }
 
     /***
+     * Method to delete Order based on Order Number
+     * @param orderNumber of the Order to be deleted
+     * @throws OrderNotFoundException is thrown if Order not found
+     */
+    @Override
+    public void deleteOrderByOrderNumber(String orderNumber) throws OrderNotFoundException {
+        Optional<Order> orderOptional = orderRepository.findOrderByOrderNumberIgnoreCase(orderNumber);
+        if(orderOptional.isEmpty()){
+            throw new OrderNotFoundException("Order "+ orderNumber + " Not Found");
+        }
+        orderRepository.deleteById(orderOptional.get().getId());
+    }
+
+    /***
      * Helper method to map OrderRequestDTO to Order
      * @param requestDTO OrderRequestDTO
      * @return Order
