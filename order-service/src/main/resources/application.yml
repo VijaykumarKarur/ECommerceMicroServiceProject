@@ -13,4 +13,9 @@ spring:
     name: order-service
 
 server:
-  port: 8083
+  port: 0
+
+eureka:
+  client:
+    service-url:
+      default zone: http://localhost:8761
