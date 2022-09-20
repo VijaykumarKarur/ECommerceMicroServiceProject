@@ -2,7 +2,9 @@ package com.learntocode.orderservice.controller;
 
 import com.learntocode.orderservice.dto.OrderRequestDTO;
 import com.learntocode.orderservice.dto.OrderResponseDTO;
+import com.learntocode.orderservice.exception.InventoryServiceCallException;
 import com.learntocode.orderservice.exception.OrderNotFoundException;
+import com.learntocode.orderservice.exception.ProductsNotInStockException;
 import com.learntocode.orderservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,7 @@ public class OrderController {
      * @return OrderResponseDTO containing Order and OrderLineItems saved in the system
      */
     @PostMapping("/")
-    public OrderResponseDTO createOrder(@RequestBody OrderRequestDTO requestDTO){
+    public OrderResponseDTO createOrder(@RequestBody OrderRequestDTO requestDTO) throws InventoryServiceCallException, ProductsNotInStockException {
         return orderService.createOrder(requestDTO);
     }
 

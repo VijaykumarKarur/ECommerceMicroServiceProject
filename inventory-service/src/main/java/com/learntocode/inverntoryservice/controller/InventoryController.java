@@ -3,6 +3,7 @@ package com.learntocode.inverntoryservice.controller;
 import com.learntocode.inverntoryservice.dto.InventoryRequestDTO;
 import com.learntocode.inverntoryservice.dto.InventoryResponseDTO;
 import com.learntocode.inverntoryservice.dto.InventoryUpdateRequestDTO;
+import com.learntocode.inverntoryservice.dto.OrderInventoryDTO;
 import com.learntocode.inverntoryservice.exception.InventoryNotFoundException;
 import com.learntocode.inverntoryservice.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,5 +77,17 @@ public class InventoryController {
     @DeleteMapping("/{id}")
     public void deleteInventoryById(@PathVariable Long id) throws InventoryNotFoundException {
         inventoryService.deleteInventoryById(id);
+    }
+
+    /***
+     * Endpoint to check if products in the given order request specified by skuCodes are in stock and in required
+     * quantity
+     * @param requestDTO OrderInventoryDTO contains list of skuCodes and required quantity
+     * @return OrderInventoryDTO contains list of skuCodes, required quantity, available quantity and flag
+     * indicating if in stock or not
+     */
+    @GetMapping("/orderInStock/")
+    public OrderInventoryDTO isInStock(@RequestBody OrderInventoryDTO requestDTO){
+        return inventoryService.isInStock(requestDTO);
     }
 }

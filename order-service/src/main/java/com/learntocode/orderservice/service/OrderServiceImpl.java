@@ -1,14 +1,15 @@
 package com.learntocode.orderservice.service;
 
-import com.learntocode.orderservice.dto.OrderLineItemDTO;
-import com.learntocode.orderservice.dto.OrderRequestDTO;
-import com.learntocode.orderservice.dto.OrderResponseDTO;
+import com.learntocode.orderservice.dto.*;
+import com.learntocode.orderservice.exception.InventoryServiceCallException;
 import com.learntocode.orderservice.exception.OrderNotFoundException;
+import com.learntocode.orderservice.exception.ProductsNotInStockException;
 import com.learntocode.orderservice.model.Order;
 import com.learntocode.orderservice.model.OrderLineItem;
 import com.learntocode.orderservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,17 +19,72 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService{
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private WebClient webClient;
 
     /***
      * Method to save Order along with OrderLineItems specified in the Order
+     * Firstly, products and their quantity are verified through inventory-service for availability
+     * before Order is being created
      * @param requestDTO Order request
      * @return OrderResponseDTO containing Order and OrderLineItems saved into the system
      */
-    public OrderResponseDTO createOrder(OrderRequestDTO requestDTO){
-        Order order = mapOrderRequestDTOToOrder(requestDTO);
-        order = orderRepository.save(order);
-        return mapOrderToOrderResponseDTO(order);
+    @Override
+    public OrderResponseDTO createOrder(OrderRequestDTO requestDTO)
+            throws InventoryServiceCallException, ProductsNotInStockException {
+        OrderInventoryDTO responseDTO;
+        try{
+            /*
+        Need to verify if the requested products and their required quantity are available in stock.
+        An inventory-service call is needed to check the stock.
+         */
+            OrderInventoryDTO orderInventoryDTO = new OrderInventoryDTO();
+            List<OrderLineItemInventoryDTO> orderLineItemInventoryDTOList =
+                    requestDTO
+                            .getOrderLineItemList()
+                            .stream()
+                            .map(this::mapOrderLineItemDTOToOrderLineItemInventoryDTO)
+                            .toList();
+            orderInventoryDTO.setOrderLineItemInventoryDTOList(orderLineItemInventoryDTOList);
+            WebClient.UriSpec<WebClient.RequestBodySpec> uriSpec =
+                    (WebClient.UriSpec<WebClient.RequestBodySpec>) webClient.get();
+            WebClient.RequestBodySpec bodySpec = uriSpec.uri("http://localhost:8082/api/inventories/orderInStock/");
+            WebClient.RequestHeadersSpec<?> headersSpec = bodySpec.bodyValue(orderInventoryDTO);
+            responseDTO = headersSpec
+                    .retrieve()
+                    .bodyToMono(OrderInventoryDTO.class)
+                    .block();
+        }
+        catch(Exception exception){
+            throw new InventoryServiceCallException("Inventory Service Call Exception");
+        }
+        boolean allInStock = responseDTO
+                .getOrderLineItemInventoryDTOList()
+                .stream()
+                .allMatch(orderLineItemInventoryDTO -> orderLineItemInventoryDTO.getInStock());
+        if(allInStock){
+            Order order = mapOrderRequestDTOToOrder(requestDTO);
+            order = orderRepository.save(order);
+            return mapOrderToOrderResponseDTO(order);
+        }
+        else{
+            throw new ProductsNotInStockException("Products Not in Stock", responseDTO);
+        }
     }
+
+    /***
+     * Helper method to map OrderLineItemDTO to OrderLineItemInventoryDTO object
+     * @param requestDTO OrderLineItemDTO to be mapped
+     * @return OrderLineItemInventoryDTO used in inventory-service call
+     */
+    public OrderLineItemInventoryDTO mapOrderLineItemDTOToOrderLineItemInventoryDTO(OrderLineItemDTO requestDTO){
+        return OrderLineItemInventoryDTO
+                .builder()
+                .skuCode(requestDTO.getSkuCode())
+                .requiredQuantity(requestDTO.getQuantity())
+                .build();
+    }
+
 
     /***
      * Method to get all Orders in the system
