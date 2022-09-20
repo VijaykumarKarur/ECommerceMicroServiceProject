@@ -3,6 +3,7 @@ package com.learntocode.orderservice.service;
 import com.learntocode.orderservice.dto.OrderLineItemDTO;
 import com.learntocode.orderservice.dto.OrderRequestDTO;
 import com.learntocode.orderservice.dto.OrderResponseDTO;
+import com.learntocode.orderservice.exception.OrderNotFoundException;
 import com.learntocode.orderservice.model.Order;
 import com.learntocode.orderservice.model.OrderLineItem;
 import com.learntocode.orderservice.repository.OrderRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -39,6 +41,21 @@ public class OrderServiceImpl implements OrderService{
                 .stream()
                 .map(this::mapOrderToOrderResponseDTO)
                 .toList();
+    }
+
+    /***
+     * Method to get Order based on id
+     * @param id of the Order to be retrieved
+     * @return OrderResponseDTO containing the details of Order retrieved
+     * @throws OrderNotFoundException is thrown if Order not found
+     */
+    @Override
+    public OrderResponseDTO getOrderById(Long id) throws OrderNotFoundException {
+        Optional<Order> orderOptional = orderRepository.findById(id);
+        if(orderOptional.isEmpty()){
+            throw new OrderNotFoundException("Order "+ id + " Not Found");
+        }
+        return mapOrderToOrderResponseDTO(orderOptional.get());
     }
 
     /***
