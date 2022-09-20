@@ -35,9 +35,9 @@ public class OrderServiceImpl implements OrderService{
         OrderInventoryDTO responseDTO;
         try{
             /*
-        Need to verify if the requested products and their required quantity are available in stock.
-        An inventory-service call is needed to check the stock.
-         */
+             Need to verify if the requested products and their required quantity are available in stock.
+            An inventory-service call is needed to check the stock.
+            */
             OrderInventoryDTO orderInventoryDTO = new OrderInventoryDTO();
             List<OrderLineItemInventoryDTO> orderLineItemInventoryDTOList =
                     requestDTO
@@ -48,7 +48,7 @@ public class OrderServiceImpl implements OrderService{
             orderInventoryDTO.setOrderLineItemInventoryDTOList(orderLineItemInventoryDTOList);
             WebClient.UriSpec<WebClient.RequestBodySpec> uriSpec =
                     (WebClient.UriSpec<WebClient.RequestBodySpec>) webClientBuilder.build().get();
-            WebClient.RequestBodySpec bodySpec = uriSpec.uri("http://localhost:8082/api/inventories/orderInStock/");
+            WebClient.RequestBodySpec bodySpec = uriSpec.uri("http://inventory-service/api/inventories/orderInStock/");
             WebClient.RequestHeadersSpec<?> headersSpec = bodySpec.bodyValue(orderInventoryDTO);
             responseDTO = headersSpec
                     .retrieve()
