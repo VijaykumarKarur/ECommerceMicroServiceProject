@@ -11,7 +11,7 @@ spring:
       routes[1]:
         id: order-service
         uri: lb://order-service
-        predicates[0]: Path=/api/order-service
+        predicates[0]: Path=/api/orders
       routes[2]:
         id: discovery-server
         uri: http://localhost:8761

@@ -6,6 +6,7 @@ import com.learntocode.orderservice.exception.InventoryServiceCallException;
 import com.learntocode.orderservice.exception.OrderNotFoundException;
 import com.learntocode.orderservice.exception.ProductsNotInStockException;
 import com.learntocode.orderservice.service.OrderService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +24,14 @@ public class OrderController {
      * @return OrderResponseDTO containing Order and OrderLineItems saved in the system
      */
     @PostMapping("/")
+    @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackMethodInventory")
     public OrderResponseDTO createOrder(@RequestBody OrderRequestDTO requestDTO) throws InventoryServiceCallException, ProductsNotInStockException {
         return orderService.createOrder(requestDTO);
     }
 
+    public OrderResponseDTO fallbackMethodInventory(OrderRequestDTO requestDTO, Exception exception) throws InventoryServiceCallException {
+        throw new InventoryServiceCallException("Inventory-Service Unavailable. Please try after sometime");
+    }
     /***
      * Endpoint to get all Orders in the system
      * @return List of OrderResponseDTO
