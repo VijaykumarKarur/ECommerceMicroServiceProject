@@ -21,6 +21,12 @@ spring:
         id: discovery-server-static
         uri: http://localhost:8761
         predicates[0]: Path=/eureka/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8181/realms/ECommerceMicroServiceRealm
 eureka:
   client:
     service-url:
