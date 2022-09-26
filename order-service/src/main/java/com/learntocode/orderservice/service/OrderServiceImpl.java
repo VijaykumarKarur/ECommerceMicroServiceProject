@@ -1,6 +1,7 @@
 package com.learntocode.orderservice.service;
 
 import com.learntocode.orderservice.dto.*;
+import com.learntocode.orderservice.event.OrderPlacedEvent;
 import com.learntocode.orderservice.exception.InventoryServiceCallException;
 import com.learntocode.orderservice.exception.OrderNotFoundException;
 import com.learntocode.orderservice.exception.ProductsNotInStockException;
@@ -8,6 +9,7 @@ import com.learntocode.orderservice.model.Order;
 import com.learntocode.orderservice.model.OrderLineItem;
 import com.learntocode.orderservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -21,6 +23,9 @@ public class OrderServiceImpl implements OrderService{
     private OrderRepository orderRepository;
     @Autowired
     private WebClient.Builder webClientBuilder;
+
+    @Autowired
+    private KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
     /***
      * Method to save Order along with OrderLineItems specified in the Order
@@ -48,7 +53,7 @@ public class OrderServiceImpl implements OrderService{
             orderInventoryDTO.setOrderLineItemInventoryDTOList(orderLineItemInventoryDTOList);
             WebClient.UriSpec<WebClient.RequestBodySpec> uriSpec =
                     (WebClient.UriSpec<WebClient.RequestBodySpec>) webClientBuilder.build().get();
-            WebClient.RequestBodySpec bodySpec = uriSpec.uri("http://inventory-service/api/inventories/orderInStock/");
+            WebClient.RequestBodySpec bodySpec = uriSpec.uri("lb://inventory-service/api/inventories/orderInStock/");
             WebClient.RequestHeadersSpec<?> headersSpec = bodySpec.bodyValue(orderInventoryDTO);
             responseDTO = headersSpec
                     .retrieve()
@@ -65,6 +70,8 @@ public class OrderServiceImpl implements OrderService{
         if(allInStock){
             Order order = mapOrderRequestDTOToOrder(requestDTO);
             order = orderRepository.save(order);
+            kafkaTemplate.send("OrderPlacedTopic",
+                    OrderPlacedEvent.builder().orderNumber(order.getOrderNumber()).build());
             return mapOrderToOrderResponseDTO(order);
         }
         else{
