@@ -15,6 +15,7 @@
 >   8. Use appropriate **_storage systems_** for persistence.
 >   9. Enable **_distributed tracing_**.
 >   10. System should be **_resilient_** through **_circuit breakers_**.
+>   11. Prodide for **_Custom Exception Handling_** wherever necessary.
 
 ## API Endpoints
 >   Product Specific
@@ -41,4 +42,5 @@
 >   6. Resilience is provided through **_Resilience4j_** circuit breaker configurations.
 >   7. Distributed tracing is achieved through configuring **_zipkin_** and **_spring sleuth_**.
 >   8. Security has been achieved through **_KeyCloak_** authentication server configurations.
+>   9. **_JUnit5_** and **_Mockito_** has been used for Integration Testing of certain endpoints.
 
